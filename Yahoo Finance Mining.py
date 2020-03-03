@@ -7,6 +7,7 @@ import pandas as pd
 from selenium import webdriver
 import time
 
+russell = pd.read_csv('russell1000.csv')
 
 def get_data(webpage):
     dfs_annual = html.fromstring(webpage.page_source)
@@ -61,16 +62,24 @@ def scrape_symbol(symbol):
     time.sleep(3)
     try:
         annual_balance = get_data(driver)
+        annual_balance.columns = annual_balance.iloc[0]
+        annual_balance = annual_balance[1:]
+        annual_balance = pd.melt(annual_balance, id_vars='Breakdown', var_name='Date')
         annual_balance['Symbol'] = symbol
         print(symbol + ": annual balance sheet")
     except:
         print(symbol +": Could not scrape annual balance sheet")
+
+
 
     #Navigate/scrape Income Statement
     driver.find_element_by_xpath("//span[text()='Income Statement']").click()
     time.sleep(3)
     try:
         annual_income = get_data(driver)
+        annual_income.columns = annual_income.iloc[0]
+        annual_income = annual_income[1:]
+        annual_income = pd.melt(annual_income, id_vars='Breakdown', var_name='Date')
         annual_income['Symbol'] = symbol
         print(symbol + ": annual income statement")
     except:
@@ -81,6 +90,9 @@ def scrape_symbol(symbol):
     time.sleep(3)
     try:
         annual_cash = get_data(driver)
+        annual_cash.columns = annual_cash.iloc[0]
+        annual_cash = annual_cash[1:]
+        annual_cash = pd.melt(annual_cash, id_vars='Breakdown', var_name='Date')
         annual_cash['Symbol'] = symbol
         print(symbol + ": annual cash flow")
     except:
@@ -95,6 +107,9 @@ def scrape_symbol(symbol):
     time.sleep(3)
     try:
         quarterly_income = get_data(driver)
+        quarterly_income.columns = quarterly_income.iloc[0]
+        quarterly_income = quarterly_income[1:]
+        quarterly_income = pd.melt(quarterly_income, id_vars='Breakdown', var_name='Date')
         quarterly_income['Symbol'] = symbol
         print(symbol + ": quarterly income statement")
     except:
@@ -108,6 +123,9 @@ def scrape_symbol(symbol):
     time.sleep(3)
     try:
         quarterly_balance = get_data(driver)
+        quarterly_balance.columns = quarterly_balance.iloc[0]
+        quarterly_balance = quarterly_balance[1:]
+        quarterly_balance = pd.melt(quarterly_balance, id_vars='Breakdown', var_name='Date')
         quarterly_balance['Symbol'] = symbol
         print(symbol + ": quarterly balance sheet")
     except:
@@ -121,6 +139,9 @@ def scrape_symbol(symbol):
     time.sleep(3)
     try:
         quarterly_cash = get_data(driver)
+        quarterly_cash.columns = quarterly_cash.iloc[0]
+        quarterly_cash = quarterly_cash[1:]
+        quarterly_cash = pd.melt(quarterly_cash, id_vars='Breakdown', var_name='Date')
         quarterly_cash['Symbol'] = symbol
         print(symbol + ": quarterly cash flow")
     except:
@@ -153,7 +174,7 @@ def scrape_symbol(symbol):
     return annual_balance, annual_income, annual_cash, quarterly_balance, quarterly_income, quarterly_cash, summary
 
 #list of tickers to pull financial data
-tickers = ['INTL', 'AMD', 'AAPL', 'MSFT']
+tickers = russell.loc[0:50,'Symbol']
 
 
 #create empty dataframes to store results
@@ -165,8 +186,9 @@ income_qu = pd.DataFrame()
 cash_qu = pd.DataFrame()
 summary_qu = pd.DataFrame()
 
+
 #Cycle through tickers collecting financials
-for i in range(1,  4):
+for i in range(0,  len(tickers)):
     #pull data and store in temporary containers
     balance_an_temp, income_an_temp, cash_an_temp, balance_qu_temp, income_qu_temp, cash_qu_temp, summary_qu_temp = scrape_symbol(tickers[i])
 
@@ -178,5 +200,21 @@ for i in range(1,  4):
     income_qu = income_qu.append(income_qu_temp)
     cash_qu = cash_qu.append(cash_qu_temp)
     summary_qu = summary_qu.append(summary_qu_temp)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
